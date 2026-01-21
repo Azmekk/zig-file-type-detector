@@ -46,28 +46,8 @@ exe.root_module.addImport("zig_file_type_detector", zig_file_type_detector);
 ## Usage
 
 ### Basic File Type Detection
-
-```zig
-const std = @import("std");
-const zig_file_type_detector = @import("zig_file_type_detector");
-
-pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpa.deinit();
-    const allocator = gpa.allocator();
-
-    var analyzer = zig_file_type_detector.MagicNumberAnalyzer.init(allocator);
-    defer analyzer.deinit();
-
-    // Detect from file
-    const mime_type = try analyzer.getMimeTypeFromFile("path/to/file.jpg");
-    std.debug.print("MIME type: {s}\n", .{mime_type});
-
-    // Detect from bytes
-    const jpeg_bytes = [_]u8{ 0xFF, 0xD8, 0xFF, 0xE0 };
-    const mime = analyzer.getMimeTypeFromBytes(&jpeg_bytes);
-    std.debug.print("MIME type: {s}\n", .{mime});
-}
+```bash
+zig fetch --save githttps://github.com/Azmekk/zig-file-type-detector#main
 ```
 
 ### Adding Custom Magic Numbers
