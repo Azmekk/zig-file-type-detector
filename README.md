@@ -14,19 +14,10 @@ A fast and efficient Zig library for detecting file types using magic numbers (f
 
 ## Installation
 
-Add this library as a dependency in your `build.zig.zon`:
+Download and add zig-file-type-detector as a dependency by running the following command in your project root:
 
-```zig
-.{
-    .name = "my-project",
-    .version = "0.1.0",
-    .dependencies = .{
-        .zig_file_type_detector = .{
-            .url = "https://github.com/yourusername/zig-file-type-detector/archive/refs/heads/main.tar.gz",
-            .hash = "12200...", // Run `zig fetch <url>` to get the hash
-        },
-    },
-}
+```
+zig fetch --save git+https://github.com/Azmekk/zig-file-type-detector#main
 ```
 
 Then reference it in your `build.zig`:
@@ -46,8 +37,28 @@ exe.root_module.addImport("zig_file_type_detector", zig_file_type_detector);
 ## Usage
 
 ### Basic File Type Detection
-```bash
-zig fetch --save githttps://github.com/Azmekk/zig-file-type-detector#main
+
+```zig
+const std = @import("std");
+const zig_file_type_detector = @import("zig_file_type_detector");
+
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    var analyzer = zig_file_type_detector.MagicNumberAnalyzer.init(allocator);
+    defer analyzer.deinit();
+
+    // Detect from file
+    const mime_type = try analyzer.getMimeTypeFromFile("path/to/file.jpg");
+    std.debug.print("MIME type: {s}\n", .{mime_type});
+
+    // Detect from bytes
+    const jpeg_bytes = [_]u8{ 0xFF, 0xD8, 0xFF, 0xE0 };
+    const mime = analyzer.getMimeTypeFromBytes(&jpeg_bytes);
+    std.debug.print("MIME type: {s}\n", .{mime});
+}
 ```
 
 ### Adding Custom Magic Numbers
@@ -159,23 +170,3 @@ Built-in support includes:
 ### `KnownByteSequence`
 
 - `init(signature: []const u8, offset: usize) KnownByteSequence` - Create a byte sequence to match at a specific offset
-
-### `MimeTypes`
-
-Pre-defined MIME type constants for common formats.
-
-## Performance
-
-Typical detection times (Release mode):
-
-- Analyzer initialization: ~5 µs
-- Single file detection: ~90 µs
-- Byte buffer detection: ~2 µs
-
-## License
-
-[Add your license here]
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit pull requests for new file formats or performance improvements.
